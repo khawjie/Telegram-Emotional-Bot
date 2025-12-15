@@ -1,0 +1,24 @@
+from telegram import Update
+from telegram.ext import Updater, MessageHandler, Filters, CallbackContext
+import os
+
+TOKEN = os.getenv("BOT_TOKEN")   # 从环境变量读取
+TARGET_CHAT_ID = int(os.getenv("TARGET_CHAT_ID"))
+
+def forward_to_group(update: Update, context: CallbackContext):
+    if update.message.chat.type == "private":
+        text = update.message.text
+        context.bot.send_message(
+            chat_id=TARGET_CHAT_ID,
+            text=text
+        )
+
+def main():
+    updater = Updater(TOKEN, use_context=True)
+    dp = updater.dispatcher
+    dp.add_handler(MessageHandler(Filters.text & Filters.private, forward_to_group))
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == "__main__":
+    main()
